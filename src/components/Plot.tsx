@@ -1,5 +1,5 @@
-import styled from '@emotion/styled';
-import { useEffect, useState } from 'react';
+import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
 
 export default function Plot() {
   const [supply, setSupply] = useState(10);
@@ -8,7 +8,7 @@ export default function Plot() {
   return (
     <PlotContainer
       onClick={() => {
-        console.log('xd');
+        console.log("xd");
         setHarvesters(harvester + 1);
       }}
     >
@@ -17,7 +17,9 @@ export default function Plot() {
         onComplete={() => setSupply((p) => Math.round(p * 2.2) - harvester)}
         onCap={() =>
           setSupply((p) =>
-            Math.round(p * 0.9) - harvester <= 0 ? 0 : Math.round(p * 0.9) - harvester,
+            Math.round(p * 0.9) - harvester <= 0
+              ? 0
+              : Math.round(p * 0.9) - harvester
           )
         }
       />
@@ -69,22 +71,22 @@ function ProgressBar({
 }
 
 const PlotContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: '5rem',
-  height: '5rem',
-  backgroundColor: 'lightgray',
-  outline: '2px solid gray',
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "5rem",
+  height: "5rem",
+  backgroundColor: "lightgray",
+  outline: "2px solid gray",
 });
 
 const Text = styled.p({
-  userSelect: 'none',
-  fontWeight: 'bold',
+  userSelect: "none",
+  fontWeight: "bold",
   margin: 0,
 });
 
 const ProgressBarContainer = styled.progress({
-  width: '80%',
+  width: "80%",
 });
