@@ -5,7 +5,7 @@ import ProgressBar from "./ProgressBar";
 
 export default function HomeBase({ freeUnits }: { freeUnits: number }) {
   const [supply, setSupply] = useState(2);
-  const [harvesters, setHarvesters] = useState(0);
+  const [workers, setWorkers] = useState(0);
 
   function update(increment: number, limit: number) {
     setSupply((p) => Math.min(p + increment, limit));
@@ -14,12 +14,12 @@ export default function HomeBase({ freeUnits }: { freeUnits: number }) {
   return (
     <Container
       onClick={() => {
-        setHarvesters(harvesters + 1);
+        setWorkers(workers + 1);
       }}
       onContextMenuCapture={(e) => {
         // right click
         e.preventDefault(); // prevent context menu
-        setHarvesters(Math.max(harvesters - 1, 0));
+        setWorkers(Math.max(workers - 1, 0));
       }}
     >
       <ProgressBar
