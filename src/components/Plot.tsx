@@ -2,25 +2,36 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
 export default function Plot() {
-  const [supply, setSupply] = useState(10);
+  const [supply, setSupply] = useState(2);
   const [harvester, setHarvesters] = useState(0);
+
+  function update(n: number, increment: number, limit: number, k: number) {
+    // k controls the steepness of the falloff
+    if (n == 1) return n;
+    const d = n - limit;
+    let decrement = d > 0 ? k * d * d : 0; // quadratic falloff
+    if (n > limit && decrement >= n * increment) {
+      decrement = n * increment - 2; // ensure at least 2 resource is gained
+    }
+    // console.log({ n, increment, decrement, ret: n * increment - decrement });
+    return Math.ceil(n * increment - decrement);
+  }
 
   return (
     <PlotContainer
       onClick={() => {
-        console.log("xd");
         setHarvesters(harvester + 1);
+      }}
+      onContextMenuCapture={(e) => {
+        // right click
+        e.preventDefault(); // prevent context menu
+        setHarvesters(Math.max(harvester - 1, 0));
       }}
     >
       <ProgressBar
         resources={supply}
-        onComplete={() => setSupply((p) => Math.round(p * 2.2) - harvester)}
-        onCap={() =>
-          setSupply((p) =>
-            Math.round(p * 0.9) - harvester <= 0
-              ? 0
-              : Math.round(p * 0.9) - harvester
-          )
+        onComplete={() =>
+          setSupply((p) => Math.max(update(p, 1.2, 100, 0.01) - harvester, 0))
         }
       />
       <Text>ermf: {supply}</Text>
@@ -32,16 +43,12 @@ export default function Plot() {
 function ProgressBar({
   resources,
   onComplete,
-  onCap,
 }: {
   resources: number;
   onComplete: () => void;
-  onCap: () => void;
 }) {
   const [progress, setProgress] = useState(0);
   const [completed, setCompleted] = useState(false);
-
-  const resourceCap = 100;
 
   useEffect(() => {
     // sweep 0 -> 100 over ~1s (10 ticks of 100ms -> +10 each)
@@ -62,10 +69,9 @@ function ProgressBar({
   // when a sweep completes, notify parent in an effect (safe — runs after render)
   useEffect(() => {
     if (!completed) return;
-    if (resources < resourceCap) onComplete();
-    else onCap();
+    onComplete();
     setCompleted(false);
-  }, [completed, resources, onComplete, onCap]);
+  }, [completed, resources, onComplete]);
 
   return <ProgressBarContainer max={100} value={progress} />;
 }
@@ -77,7 +83,7 @@ const PlotContainer = styled.div({
   alignItems: "center",
   width: "5rem",
   height: "5rem",
-  backgroundColor: "lightgray",
+  backgroundColor: "#333",
   outline: "2px solid gray",
 });
 
