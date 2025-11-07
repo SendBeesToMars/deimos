@@ -1,65 +1,65 @@
 import styled from '@emotion/styled'
 import { useEffect, useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
 
 export default function Plot() {
-  const [resources, setResources] = useState(10);
-  const [pop, setPop] = useState(0);
-
-  const resourceCap = 100;
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // population cap
-      if (resources < resourceCap) {
-        setResources((prev) => Math.round(prev * 2.2));
-      } else {
-        setResources((prev) => Math.round(prev * 0.9));
-      }
-    }, 1000); // Increment resources every second
-
-    // stop resource regen when resouces are depleted
-    if (resources <= 0)
-      clearInterval(interval)
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [resources]);
+  const [supply, setSupply] = useState(10);
+  const [harvester, setHarvesters] = useState(0);
 
   return (
     <PlotContainer onClick={() => {
       console.log("xd");
-      setPop(pop + 1);
+      setHarvesters(harvester + 1);
     }}>
-      <ProgressBar setResource={setResources} />
-      <Text>ermf: {resources}</Text>
-      <Text>glorps: {pop}</Text>
+      <ProgressBar
+        resources={supply}
+        onComplete={() => setSupply((p) => Math.round(p * 2.2))}
+        onCap={() => setSupply((p) => Math.round(p * 0.9))}
+      />
+      <Text>ermf: {supply}</Text>
+      <Text>glorps: {harvester}</Text>
     </PlotContainer>
   )
 }
 
-function ProgressBar({ setResource }: { setResource: Dispatch<SetStateAction<number>> }) {
+function ProgressBar({
+  resources,
+  onComplete,
+  onCap,
+}: {
+  resources: number
+  onComplete: () => void
+  onCap: () => void
+}) {
   const [progress, setProgress] = useState(0)
+  const [completed, setCompleted] = useState(false)
+
+  const resourceCap = 100
 
   useEffect(() => {
-    // start incrementing every second
+    // sweep 0 -> 100 over ~1s (10 ticks of 100ms -> +10 each)
     const interval = setInterval(() => {
       setProgress((prev) => {
-        const next = prev + 0.5
-        if (next > 100) {
-          // call the passed setter to add resources
-          setResource((prev) => prev + 10);
-          return 0;
+        const next = prev + 10
+        if (next >= 100) {
+          setCompleted(true)
+          return 0
         }
-        return next;
+        return next
       })
-    }, 1000)
+    }, 100)
 
     return () => clearInterval(interval)
-  }, [setResource])
+  }, [])
 
-  return (
-    <ProgressBarContainer max={100} value={progress} />
-  )
+  // when a sweep completes, notify parent in an effect (safe — runs after render)
+  useEffect(() => {
+    if (!completed) return
+    if (resources < resourceCap) onComplete()
+    else onCap()
+    setCompleted(false)
+  }, [completed, resources, onComplete, onCap])
+
+  return <ProgressBarContainer max={100} value={progress} />
 }
 
 const PlotContainer = styled.div({
