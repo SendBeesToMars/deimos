@@ -2,10 +2,8 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
 export default function ProgressBar({
-  resources,
   onComplete,
 }: {
-  resources: number;
   onComplete: () => void;
 }) {
   const [progress, setProgress] = useState(0);
@@ -32,7 +30,7 @@ export default function ProgressBar({
     if (!completed) return;
     onComplete();
     setCompleted(false);
-  }, [completed, resources, onComplete]);
+  }, [completed, onComplete]);
 
   return <ProgressBarContainer max={100} value={progress} />;
 }

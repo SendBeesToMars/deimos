@@ -3,9 +3,15 @@ import { useState } from "react";
 
 import ProgressBar from "./ProgressBar";
 
-export default function Plot() {
+export default function Plot({
+  onClick,
+  freeUnits,
+}: {
+  onClick: React.MouseEventHandler<HTMLElement>;
+  freeUnits: number;
+}) {
   const [supply, setSupply] = useState(2);
-  const [harvester, setHarvesters] = useState(0);
+  const [units, setUnits] = useState(0);
 
   function update(n: number, increment: number, limit: number, k: number) {
     // k controls the steepness of the falloff
@@ -19,25 +25,36 @@ export default function Plot() {
     return Math.ceil(n * increment - decrement);
   }
 
+  function handleClick(event: React.MouseEvent<HTMLElement>) {
+    event.preventDefault();
+    if (event.type === "click") {
+      // left click
+      // increases the amount of units assigned to this plot if there are free units
+      if (freeUnits <= 0) return;
+      setUnits(units + 1);
+      onClick(event);
+    } else if (event.type === "contextmenu") {
+      // right click
+      if (units <= 0) return;
+      setUnits(units - 1);
+      onClick(event);
+    }
+  }
+
   return (
     <PlotContainer
-      onClick={() => {
-        setHarvesters(harvester + 1);
-      }}
-      onContextMenuCapture={(e) => {
-        // right click
-        e.preventDefault(); // prevent context menu
-        setHarvesters(Math.max(harvester - 1, 0));
-      }}
+      onClick={(e) => handleClick(e)}
+      onContextMenu={(e) => handleClick(e)}
     >
       <ProgressBar
-        resources={supply}
         onComplete={() =>
-          setSupply((p) => Math.max(update(p, 1.2, 100, 0.01) - harvester, 0))
+          setSupply(
+            (p) => Math.max(update(p, 1.2, 100, 0.01) - units, 0) // harvesters could have a multiplier
+          )
         }
       />
       <Text>ermf: {supply}</Text>
-      <Text>glorps: {harvester}</Text>
+      <Text>glorps: {units}</Text>
     </PlotContainer>
   );
 }
