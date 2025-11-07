@@ -11,7 +11,7 @@ export default function Plot({
   freeUnits: number;
 }) {
   const [supply, setSupply] = useState(2);
-  const [units, setUnits] = useState(0);
+  const [workers, setWorkers] = useState(0);
 
   function update(n: number, increment: number, limit: number, k: number) {
     // k controls the steepness of the falloff
@@ -31,12 +31,12 @@ export default function Plot({
       // left click
       // increases the amount of units assigned to this plot if there are free units
       if (freeUnits <= 0) return;
-      setUnits(units + 1);
+      setWorkers(workers + 1);
       onClick(event);
     } else if (event.type === "contextmenu") {
       // right click
-      if (units <= 0) return;
-      setUnits(units - 1);
+      if (workers <= 0) return;
+      setWorkers(workers - 1);
       onClick(event);
     }
   }
@@ -49,12 +49,12 @@ export default function Plot({
       <ProgressBar
         onComplete={() =>
           setSupply(
-            (p) => Math.max(update(p, 1.2, 100, 0.01) - units, 0) // harvesters could have a multiplier
+            (p) => Math.max(update(p, 1.2, 100, 0.01) - workers, 0) // harvesters could have a multiplier
           )
         }
       />
       <Text>ermf: {supply}</Text>
-      <Text>glorps: {units}</Text>
+      <Text>glorps: {workers}</Text>
     </PlotContainer>
   );
 }

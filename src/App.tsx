@@ -4,21 +4,21 @@ import HomeBase from "./components/HomeBase";
 import { useState } from "react";
 
 export default function App() {
-  // const [maxUnits, setMaxUnits] = useState(10); // max units that can be allocated, will be increased by upgrades
-  const maxUnits = 10;
-  const [freeUnits, setFreeUnits] = useState(5);
+  // const [maxWorkers, setMaxWorkers] = useState(10); // max units that can be allocated, will be increased by upgrades
+  const maxWorkers = 10;
+  const [freeWorkers, setFreeWorkers] = useState(5);
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     if (e.type === "click") {
       // left click
       // decrease available units
-      if (freeUnits <= maxUnits) {
-        setFreeUnits(Math.max(freeUnits - 1, 0));
+      if (freeWorkers <= maxWorkers) {
+        setFreeWorkers(Math.max(freeWorkers - 1, 0));
         console.log("Left click");
       }
     } else if (e.type === "contextmenu") {
-      setFreeUnits(Math.min(freeUnits + 1, maxUnits));
+      setFreeWorkers(Math.min(freeWorkers + 1, maxWorkers));
       console.log("Right click");
     }
   };
@@ -26,8 +26,8 @@ export default function App() {
   return (
     <Container>
       <GridWrapper>
-        <Plot onClick={handleClick} freeUnits={freeUnits} />
-        <HomeBase freeUnits={freeUnits} />
+        <Plot onClick={handleClick} freeUnits={freeWorkers} />
+        <HomeBase freeUnits={freeWorkers} />
       </GridWrapper>
     </Container>
   );
