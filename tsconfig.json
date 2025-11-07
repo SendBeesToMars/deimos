@@ -1,14 +1,10 @@
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
-    
     "jsxImportSource": "@emotion/react",
     "jsx": "react-jsx",
-    
+
     /* ✅ Type Safety */
     "strict": true,
     "noImplicitAny": true,
@@ -22,6 +18,6 @@
 
     /* ✅ Code Quality */
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,             // speeds up builds by skipping .d.ts checks
+    "skipLibCheck": true // speeds up builds by skipping .d.ts checks
   }
 }
