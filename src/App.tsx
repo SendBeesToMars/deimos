@@ -1,33 +1,81 @@
 import styled from "@emotion/styled";
 import Plot from "./components/Plot";
 import HomeBase from "./components/HomeBase";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function App() {
   // const [maxWorkers, setMaxWorkers] = useState(10); // max units that can be allocated, will be increased by upgrades
-  const maxWorkers = 10;
-  const [freeWorkers, setFreeWorkers] = useState(5);
+  const maxWorkers = 25;
+  const totalWorkers = 20;
+  const [freeWorkers, setFreeWorkers] = useState(totalWorkers);
+  const [resources, setResources] = useState(0);
+  const [controlPressed, setControlPressed] = useState(false);
 
-  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    if (e.type === "click") {
+  // controll key press detection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Control") {
+        setControlPressed(true);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Control") {
+        setControlPressed(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  const handlePlotClick = (
+    event: React.MouseEvent<HTMLElement>,
+    change: number
+  ) => {
+    console.log(event.type, change);
+    if (event.type === "click") {
       // left click
       // decrease available units
       if (freeWorkers <= maxWorkers) {
-        setFreeWorkers(Math.max(freeWorkers - 1, 0));
+        setFreeWorkers(freeWorkers - change < 0 ? 0 : freeWorkers - change);
         console.log("Left click");
       }
-    } else if (e.type === "contextmenu") {
-      setFreeWorkers(Math.min(freeWorkers + 1, maxWorkers));
+    } else if (event.type === "contextmenu") {
+      setFreeWorkers(
+        freeWorkers + change > totalWorkers
+          ? totalWorkers
+          : freeWorkers + change
+      );
       console.log("Right click");
     }
+  };
+
+  const handleResConsumer = (res: number) => {
+    setResources((prev) => prev - res);
   };
 
   return (
     <Container>
       <GridWrapper>
-        <Plot onClick={handleClick} freeUnits={freeWorkers} />
-        <HomeBase freeUnits={freeWorkers} />
+        <Plot
+          onClick={handlePlotClick}
+          freeUnits={freeWorkers}
+          controllPressed={controlPressed}
+        />
+        <HomeBase
+          freeUnits={freeWorkers}
+          resources={resources}
+          resConsumer={handleResConsumer}
+        />
+        <Plot
+          onClick={handlePlotClick}
+          freeUnits={freeWorkers}
+          controllPressed={controlPressed}
+        />
       </GridWrapper>
     </Container>
   );

@@ -6,9 +6,11 @@ import ProgressBar from "./ProgressBar";
 export default function Plot({
   onClick,
   freeUnits,
+  controllPressed = false,
 }: {
-  onClick: React.MouseEventHandler<HTMLElement>;
+  onClick: (event: React.MouseEvent<HTMLElement>, change: number) => void;
   freeUnits: number;
+  controllPressed: boolean;
 }) {
   const [supply, setSupply] = useState(2);
   const [workers, setWorkers] = useState(0);
@@ -27,17 +29,22 @@ export default function Plot({
 
   function handleClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
+    const increment = controllPressed ? 5 : 1;
     if (event.type === "click") {
       // left click
       // increases the amount of units assigned to this plot if there are free units
       if (freeUnits <= 0) return;
-      setWorkers(workers + 1);
-      onClick(event);
+      const change =
+        increment > freeUnits ? workers + freeUnits : workers + increment;
+      setWorkers(change);
+      onClick(event, increment);
     } else if (event.type === "contextmenu") {
       // right click
       if (workers <= 0) return;
-      setWorkers(workers - 1);
-      onClick(event);
+      // const change = Math.max(workers - increment, 0);
+      const change = workers - (increment > workers ? workers : increment);
+      setWorkers(change);
+      onClick(event, increment > workers ? workers : increment);
     }
   }
 

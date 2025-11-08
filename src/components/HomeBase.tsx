@@ -3,13 +3,16 @@ import { useState } from "react";
 
 import ProgressBar from "./ProgressBar";
 
-export default function HomeBase({ freeUnits }: { freeUnits: number }) {
-  const [supply, setSupply] = useState(2);
+export default function HomeBase({
+  freeUnits,
+  resources,
+  resConsumer,
+}: {
+  freeUnits: number;
+  resources: number;
+  resConsumer: (res: number) => void;
+}) {
   const [workers, setWorkers] = useState(0);
-
-  function update(increment: number, limit: number) {
-    setSupply((p) => Math.min(p + increment, limit));
-  }
 
   return (
     <Container
@@ -24,10 +27,11 @@ export default function HomeBase({ freeUnits }: { freeUnits: number }) {
     >
       <ProgressBar
         onComplete={() => {
-          update(2, 50);
+          resConsumer(1);
         }}
+        speed={1000}
       />
-      <Text>ermf: {supply}</Text>
+      <Text>ermf: {resources}</Text>
       <Text>glorps: {freeUnits}</Text>
     </Container>
   );

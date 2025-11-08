@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 
 export default function ProgressBar({
   onComplete,
+  speed = 100,
 }: {
   onComplete: () => void;
+  speed?: number;
 }) {
   const [progress, setProgress] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -20,10 +22,10 @@ export default function ProgressBar({
         }
         return next;
       });
-    }, 100);
+    }, speed);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [speed]);
 
   // when a sweep completes, notify parent in an effect (safe — runs after render)
   useEffect(() => {
