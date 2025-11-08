@@ -51,8 +51,8 @@ export default function App() {
     }
   };
 
-  const handleResConsumer = (res: number) => {
-    setResources((prev) => prev - res);
+  const updateResources = (res: number) => {
+    setResources((prev) => prev + res);
   };
 
   return (
@@ -62,16 +62,19 @@ export default function App() {
           onClick={handlePlotClick}
           freeUnits={freeWorkers}
           controllPressed={controlPressed}
+          resProducer={updateResources}
         />
         <HomeBase
           freeUnits={freeWorkers}
           resources={resources}
-          resConsumer={handleResConsumer}
+          resConsumer={updateResources}
+          totalWorkers={totalWorkers}
         />
         <Plot
           onClick={handlePlotClick}
           freeUnits={freeWorkers}
           controllPressed={controlPressed}
+          resProducer={updateResources}
         />
       </GridWrapper>
     </Container>

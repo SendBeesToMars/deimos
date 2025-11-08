@@ -7,10 +7,12 @@ export default function Plot({
   onClick,
   freeUnits,
   controllPressed = false,
+  resProducer,
 }: {
   onClick: (event: React.MouseEvent<HTMLElement>, change: number) => void;
   freeUnits: number;
   controllPressed: boolean;
+  resProducer: (res: number) => void;
 }) {
   const [supply, setSupply] = useState(2);
   const [workers, setWorkers] = useState(0);
@@ -53,11 +55,12 @@ export default function Plot({
       onContextMenu={(e) => handleClick(e)}
     >
       <ProgressBar
-        onComplete={() =>
-          setSupply(
+        onComplete={() => {
+          resProducer(supply ? Math.min(workers, supply) : 0);
+          return setSupply(
             (p) => Math.max(update(p, 1.2, 100, 0.01) - workers, 0) // harvesters could have a multiplier
-          )
-        }
+          );
+        }}
       />
       <Text>ermf: {supply}</Text>
       <Text>glorps: {workers}</Text>

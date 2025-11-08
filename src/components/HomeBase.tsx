@@ -7,10 +7,12 @@ export default function HomeBase({
   freeUnits,
   resources,
   resConsumer,
+  totalWorkers,
 }: {
   freeUnits: number;
   resources: number;
   resConsumer: (res: number) => void;
+  totalWorkers: number;
 }) {
   const [workers, setWorkers] = useState(0);
 
@@ -27,9 +29,9 @@ export default function HomeBase({
     >
       <ProgressBar
         onComplete={() => {
-          resConsumer(1);
+          resConsumer(-totalWorkers);
         }}
-        speed={1000}
+        speed={500}
       />
       <Text>ermf: {resources}</Text>
       <Text>glorps: {freeUnits}</Text>
