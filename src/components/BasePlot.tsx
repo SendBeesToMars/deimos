@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import ProgressBar from "./ProgressBar";
 
-export default function HomeBase({
+export default function BasePlot({
   freeUnits,
   resources,
   resConsumer,
