@@ -34,16 +34,15 @@ export default function Plot({
       // left click
       // increases the amount of units assigned to this plot if there are free units
       if (freeUnits <= 0) return;
-      const change =
+      const increase =
         increment > freeUnits ? workers + freeUnits : workers + increment;
-      setWorkers(change);
+      setWorkers(increase);
       onClick(event, increment);
     } else if (event.type === "contextmenu") {
       // right click
       if (workers <= 0) return;
-      // const change = Math.max(workers - increment, 0);
-      const change = workers - (increment > workers ? workers : increment);
-      setWorkers(change);
+      const decrease = workers - (increment > workers ? workers : increment);
+      setWorkers(decrease);
       onClick(event, increment > workers ? workers : increment);
     }
   }

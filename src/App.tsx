@@ -36,13 +36,11 @@ export default function App() {
     event: React.MouseEvent<HTMLElement>,
     change: number
   ) => {
-    console.log(event.type, change);
     if (event.type === "click") {
       // left click
       // decrease available units
       if (freeWorkers <= maxWorkers) {
         setFreeWorkers(freeWorkers - change < 0 ? 0 : freeWorkers - change);
-        console.log("Left click");
       }
     } else if (event.type === "contextmenu") {
       setFreeWorkers(
@@ -50,7 +48,6 @@ export default function App() {
           ? totalWorkers
           : freeWorkers + change
       );
-      console.log("Right click");
     }
   };
 
