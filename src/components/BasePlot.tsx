@@ -1,19 +1,11 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
-
+import { useGame } from "../context/GameContext";
 import ProgressBar from "./ProgressBar";
+import { theme } from "../theme";
 
-export default function BasePlot({
-  freeUnits,
-  resources,
-  resConsumer,
-  totalWorkers,
-}: {
-  freeUnits: number;
-  resources: number;
-  resConsumer: (res: number) => void;
-  totalWorkers: number;
-}) {
+export default function BasePlot() {
+  const { freeWorkers, resources, updateResources, totalWorkers } = useGame();
   const [workers, setWorkers] = useState(0);
 
   return (
@@ -29,12 +21,12 @@ export default function BasePlot({
     >
       <ProgressBar
         onComplete={() => {
-          resConsumer(-totalWorkers);
+          updateResources(-totalWorkers);
         }}
         speed={500}
       />
       <Text>ermf: {resources}</Text>
-      <Text>glorps: {freeUnits}</Text>
+      <Text>glorps: {freeWorkers}</Text>
     </Container>
   );
 }
@@ -44,14 +36,16 @@ const Container = styled.div({
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
-  width: "5rem",
-  height: "5rem",
-  backgroundColor: "#282",
-  outline: "2px solid #050",
+  width: theme.spacing.plotSize,
+  height: theme.spacing.plotSize,
+  backgroundColor: theme.colors.plot.base,
+  outline: `2px solid ${theme.colors.plot.baseOutline}`,
+  color: theme.colors.text,
 });
 
 const Text = styled.p({
   userSelect: "none",
   fontWeight: "bold",
   margin: 0,
+  fontSize: "0.8rem",
 });

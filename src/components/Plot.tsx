@@ -1,19 +1,12 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
-
+import { useGame } from "../context/GameContext";
 import ProgressBar from "./ProgressBar";
+import { theme } from "../theme";
 
-export default function Plot({
-  onClick,
-  freeUnits,
-  controllPressed = false,
-  resProducer,
-}: {
-  onClick: (event: React.MouseEvent<HTMLElement>, change: number) => void;
-  freeUnits: number;
-  controllPressed: boolean;
-  resProducer: (res: number) => void;
-}) {
+export default function Plot() {
+  const { freeWorkers, setFreeWorkers, controlPressed, updateResources } =
+    useGame();
   const [supply, setSupply] = useState(2);
   const [workers, setWorkers] = useState(0);
 
@@ -25,27 +18,32 @@ export default function Plot({
     if (n > limit && decrement >= n * increment) {
       decrement = n * increment - 2; // ensure at least 2 resource is gained
     }
-    // console.log({ n, increment, decrement, ret: n * increment - decrement });
     return Math.ceil(n * increment - decrement);
   }
 
   function handleClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
-    const increment = controllPressed ? 5 : 1;
+    const increment = controlPressed ? 5 : 1;
+
     if (event.type === "click") {
       // left click
       // increases the amount of units assigned to this plot if there are free units
-      if (freeUnits <= 0) return;
-      const increase =
-        increment > freeUnits ? workers + freeUnits : workers + increment;
-      setWorkers(increase);
-      onClick(event, increment);
+      if (freeWorkers <= 0) return;
+
+      // Calculate how many workers we can actually add
+      const actualIncrement = Math.min(increment, freeWorkers);
+
+      setWorkers((prev) => prev + actualIncrement);
+      setFreeWorkers(freeWorkers - actualIncrement);
     } else if (event.type === "contextmenu") {
       // right click
       if (workers <= 0) return;
-      const decrease = workers - (increment > workers ? workers : increment);
-      setWorkers(decrease);
-      onClick(event, increment > workers ? workers : increment);
+
+      // Calculate how many workers we can actually remove
+      const actualDecrement = Math.min(increment, workers);
+
+      setWorkers((prev) => prev - actualDecrement);
+      setFreeWorkers(freeWorkers + actualDecrement);
     }
   }
 
@@ -56,7 +54,7 @@ export default function Plot({
     >
       <ProgressBar
         onComplete={() => {
-          resProducer(supply ? Math.min(workers, supply) : 0);
+          updateResources(supply ? Math.min(workers, supply) : 0);
           return setSupply(
             (p) => Math.max(update(p, 1.2, 100, 0.01) - workers, 0) // harvesters could have a multiplier
           );
@@ -73,14 +71,16 @@ const PlotContainer = styled.div({
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
-  width: "5rem",
-  height: "5rem",
-  backgroundColor: "#333",
-  outline: "2px solid gray",
+  width: theme.spacing.plotSize,
+  height: theme.spacing.plotSize,
+  backgroundColor: theme.colors.plot.standard,
+  outline: `2px solid ${theme.colors.plot.standardOutline}`,
+  color: theme.colors.text,
 });
 
 const Text = styled.p({
   userSelect: "none",
   fontWeight: "bold",
   margin: 0,
+  fontSize: "0.8rem",
 });
