@@ -1,0 +1,54 @@
+[gd_scene load_steps=4 format=3 uid="uid://rhd1dcaa16xd"]
+
+[ext_resource type="Script" uid="uid://gdv4k6kk06c7" path="res://scenes/land/base/home.gd" id="1_0tcja"]
+[ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="1_pvqg0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ddj3k"]
+radius = 21.0
+
+[node name="Home" type="Area2D" node_paths=PackedStringArray("food_text", "water_text", "material_text") groups=["base"]]
+script = ExtResource("1_0tcja")
+food_text = NodePath("Food")
+water_text = NodePath("Water")
+material_text = NodePath("Material")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ddj3k")
+
+[node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
+position = Vector2(0, -9.53674e-07)
+rotation = 0.785398
+scale = Vector2(0.328125, 0.328125)
+texture = ExtResource("1_pvqg0")
+
+[node name="Food" type="RichTextLabel" parent="."]
+z_index = 1
+offset_left = -20.0
+offset_top = -11.0
+offset_right = 71.0
+offset_bottom = 13.0
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
+
+[node name="Water" type="RichTextLabel" parent="."]
+z_index = 1
+offset_left = -20.0
+offset_top = -5.0
+offset_right = 56.0
+offset_bottom = 3.0
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
+
+[node name="Material" type="RichTextLabel" parent="."]
+z_index = 1
+offset_left = -20.0
+offset_top = 1.0
+offset_right = 61.0
+offset_bottom = 10.0
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
