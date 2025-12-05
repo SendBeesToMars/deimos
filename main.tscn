@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b13lt27rt5lf1"]
+[gd_scene load_steps=5 format=3 uid="uid://b13lt27rt5lf1"]
 
 [ext_resource type="PackedScene" uid="uid://d1eftoiduyeal" path="res://scenes/units/worker/worker.tscn" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://rhd1dcaa16xd" path="res://scenes/land/base/home.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://c4xm0ks6oxvdq" path="res://scenes/land/farm/farm.tscn" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://d2eri0voaao2x" path="res://scenes/land/well/well.tscn" id="4_1bvp3"]
 
 [node name="main" type="Node2D"]
 
@@ -12,44 +13,9 @@ position = Vector2(158, 86)
 [node name="Farm" parent="." instance=ExtResource("3_h2yge")]
 position = Vector2(59, 134)
 
-[node name="worker" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(14, 12)
+[node name="Well" parent="." instance=ExtResource("4_1bvp3")]
+position = Vector2(207, 108)
 
-[node name="worker2" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(250, 98)
-
-[node name="worker3" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(301, 154)
-
-[node name="worker4" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(151, 25)
-
-[node name="worker5" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(62, 16)
-
-[node name="worker6" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(63, 28)
-
-[node name="worker7" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(66, 7)
-
-[node name="worker8" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(74, 15)
-
-[node name="worker9" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(51, 11)
-
-[node name="worker10" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(49, 22)
-
-[node name="worker11" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(78, 24)
-
-[node name="worker12" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(59, 39)
-
-[node name="worker13" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(48, 36)
-
-[node name="worker14" parent="." instance=ExtResource("1_0xm2m")]
-position = Vector2(72, 33)
+[node name="Basic Worker" parent="." instance=ExtResource("1_0xm2m")]
+z_index = 1
+position = Vector2(96, 83)

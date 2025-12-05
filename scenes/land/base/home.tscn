@@ -6,11 +6,9 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_ddj3k"]
 radius = 21.0
 
-[node name="Home" type="Area2D" node_paths=PackedStringArray("food_text", "water_text", "material_text") groups=["base"]]
+[node name="Home" type="Area2D" groups=["base"]]
+z_index = 1
 script = ExtResource("1_0tcja")
-food_text = NodePath("Food")
-water_text = NodePath("Water")
-material_text = NodePath("Material")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_ddj3k")
@@ -51,4 +49,11 @@ focus_mode = 2
 bbcode_enabled = true
 selection_enabled = true
 
+[node name="Spawner" type="Marker2D" parent="."]
+
+[node name="SpawnTimer" type="Timer" parent="Spawner"]
+
+[node name="SpawnTimer" type="Timer" parent="Spawner/SpawnTimer"]
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="Spawner/SpawnTimer" to="." method="_on_spawn_timer_timeout"]

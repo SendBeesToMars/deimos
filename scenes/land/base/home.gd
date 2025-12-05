@@ -1,8 +1,15 @@
 extends Area2D
 
-@export var food_text: RichTextLabel
-@export var water_text: RichTextLabel
-@export var material_text: RichTextLabel
+@export var worker_scene: PackedScene = preload("uid://d1eftoiduyeal")
+@export var max_workers: int = 5
+
+@onready var food_text: = $Food as RichTextLabel
+@onready var water_text: = $Water as RichTextLabel
+@onready var material_text: = $Material as RichTextLabel
+
+@onready var spawner: = $Spawner as Marker2D
+
+@onready var workers: Array = []
 
 var text_template: = "[font_size=5][color=#000000]{label}[/color][/font_size]"
 
@@ -43,3 +50,10 @@ func _on_body_entered(body: Node2D) -> void:
 		var worker: Worker = body as Worker
 		printt(worker.name + " entered home base")
 		worker.drop_off_supplies(storage, update_text)
+
+
+func _on_spawn_timer_timeout() -> void:
+	if workers.size() <= max_workers:
+		var worker: Worker = worker_scene.instantiate() as Worker
+		workers.append(worker)
+		add_child(worker)
