@@ -1,19 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://d2eri0voaao2x"]
+[gd_scene load_steps=5 format=3 uid="uid://d2eri0voaao2x"]
 
 [ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="1_4vqon"]
 [ext_resource type="Script" uid="uid://b5c4c6vk5twij" path="res://scenes/land/well/well.gd" id="1_vvf4q"]
+[ext_resource type="Script" uid="uid://hkuco3nsrkpr" path="res://scenes/land/components/resource.gd" id="3_yyvik"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_vvf4q"]
 radius = 21.0
 
-[node name="Well" type="Area2D" node_paths=PackedStringArray("production_text", "resources_text", "workers_text") groups=["resource", "well"]]
+[node name="Well" type="Area2D" groups=["resource", "well"]]
 script = ExtResource("1_vvf4q")
-production_text = NodePath("Production")
-resources_text = NodePath("Resources")
-workers_text = NodePath("Workers")
-resource = "water"
-resource_rate = 1.0
-initial_val = 50.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_vvf4q")
@@ -30,10 +25,10 @@ offset_left = -20.0
 offset_top = -11.0
 offset_right = 54.0
 offset_bottom = -3.0
-focus_mode = 2
 bbcode_enabled = true
 text = "[font_size=5][color=#000000]{label}[/color][/font_size]"
-selection_enabled = true
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
 
 [node name="Resources" type="RichTextLabel" parent="."]
 z_index = 1
@@ -41,10 +36,10 @@ offset_left = -20.0
 offset_top = -5.0
 offset_right = 56.0
 offset_bottom = 3.0
-focus_mode = 2
 bbcode_enabled = true
 text = "[font_size=5][color=#000000]{label}[/color][/font_size]"
-selection_enabled = true
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
 
 [node name="Workers" type="RichTextLabel" parent="."]
 z_index = 1
@@ -52,14 +47,25 @@ offset_left = -20.0
 offset_top = 1.0
 offset_right = 61.0
 offset_bottom = 10.0
-focus_mode = 2
 bbcode_enabled = true
 text = "[font_size=5][color=#000000]{label}[/color][/font_size]"
-selection_enabled = true
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
 
 [node name="ResourceSpawn" type="Timer" parent="."]
 wait_time = 5.0
 autostart = true
 
+[node name="ResourceNode" type="Node2D" parent="." node_paths=PackedStringArray("production_text", "resources_text", "workers_text")]
+script = ExtResource("3_yyvik")
+production_text = NodePath("../Production")
+resources_text = NodePath("../Resources")
+workers_text = NodePath("../Workers")
+resource = "water"
+resource_rate = 1.0
+initial_val = 50.0
+metadata/_custom_type_script = "uid://hkuco3nsrkpr"
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
 [connection signal="timeout" from="ResourceSpawn" to="." method="_on_resource_spawn_timeout"]

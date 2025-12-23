@@ -48,7 +48,6 @@ func drop_off_supplies(resources: Dictionary[String, ResourceInfo], update_text:
 		resources[key].value += inventory[key]
 		inventory[key] = 0
 		update_text.call(resources, key)
-	printt("starting drop_off_supplies timer")
 	inside_area_timer.wait_time = randi_range(1, 5)
 	inside_area_timer.start()
 
@@ -61,7 +60,6 @@ func harvest(harvest_node_info: Dictionary[String, Dictionary], update_text: Cal
 			inventory[key] += floori(gatherable) # add item to worker inventory
 			harvest_node_info[key].value -= floori(gatherable)
 			update_text.call(harvest_node_info, key)
-	printt("starting harvest_node_info timer")
 	inside_area_timer.wait_time = randi_range(1, 5)
 	inside_area_timer.start()
 
@@ -72,5 +70,4 @@ func destination_reached(dest: Vector2):
 
 
 func _on_inside_area_timer_timeout() -> void:
-	printt("inside area timer ended")
 	is_ready = true

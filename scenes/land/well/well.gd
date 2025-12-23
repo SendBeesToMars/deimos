@@ -1,12 +1,19 @@
-extends ResourceNode
+extends Area2D
+
+@onready var resource_node: ResourceNode = $ResourceNode
+
 
 func _ready() -> void:
-	init_resource()
+	resource_node.init_resource()
 
 
 func _on_resource_spawn_timeout() -> void:
-	resource_spawn()
+	resource_node.regen()
 
 
 func _on_body_entered(body: Node2D) -> void:
-	resource_entered(body)
+	resource_node.on_enter(body)
+
+
+func _on_body_exited(body: Node2D) -> void:
+	resource_node.on_exit(body)

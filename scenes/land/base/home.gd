@@ -48,7 +48,6 @@ func update_text(dict: Dictionary[String, ResourceInfo], key: String):
 func _on_body_entered(body: Node2D) -> void:
 	if body is Worker:
 		var worker: Worker = body as Worker
-		printt(worker.name + " entered home base")
 		worker.drop_off_supplies(storage, update_text)
 
 
@@ -56,4 +55,6 @@ func _on_spawn_timer_timeout() -> void:
 	if workers.size() <= max_workers:
 		var worker: Worker = worker_scene.instantiate() as Worker
 		workers.append(worker)
+		var offset := Vector2(-20, 0).rotated(randf_range(-20, 0))
+		worker.global_position = spawner.global_position + offset - global_position
 		add_child(worker)

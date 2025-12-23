@@ -19,15 +19,21 @@ rotation = 0.785398
 scale = Vector2(0.328125, 0.328125)
 texture = ExtResource("1_pvqg0")
 
+[node name="Spawner" type="Marker2D" parent="."]
+
+[node name="SpawnTimer" type="Timer" parent="Spawner"]
+autostart = true
+
 [node name="Food" type="RichTextLabel" parent="."]
 z_index = 1
 offset_left = -20.0
 offset_top = -11.0
 offset_right = 71.0
 offset_bottom = 13.0
-focus_mode = 2
 bbcode_enabled = true
-selection_enabled = true
+scroll_active = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
 
 [node name="Water" type="RichTextLabel" parent="."]
 z_index = 1
@@ -35,9 +41,10 @@ offset_left = -20.0
 offset_top = -5.0
 offset_right = 56.0
 offset_bottom = 3.0
-focus_mode = 2
 bbcode_enabled = true
-selection_enabled = true
+scroll_active = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
 
 [node name="Material" type="RichTextLabel" parent="."]
 z_index = 1
@@ -45,15 +52,10 @@ offset_left = -20.0
 offset_top = 1.0
 offset_right = 61.0
 offset_bottom = 10.0
-focus_mode = 2
 bbcode_enabled = true
-selection_enabled = true
-
-[node name="Spawner" type="Marker2D" parent="."]
-
-[node name="SpawnTimer" type="Timer" parent="Spawner"]
-
-[node name="SpawnTimer" type="Timer" parent="Spawner/SpawnTimer"]
+scroll_active = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Spawner/SpawnTimer" to="." method="_on_spawn_timer_timeout"]

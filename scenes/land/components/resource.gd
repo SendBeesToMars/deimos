@@ -1,4 +1,4 @@
-extends Area2D
+extends Node2D
 
 class_name ResourceNode
 
@@ -41,14 +41,25 @@ func update_text(dict: Dictionary[String, Dictionary], key: String):
 	dict[key].node.text = bbcode
 
 
-func resource_entered(body: Node2D) -> void:
+func on_enter(body: Node2D) -> void:
 	if body is Worker:
 		var worker: Worker = body as Worker
-		printt(worker.name + " entered " + resource + " plot")
+		node_info.workers.value += 1
+		update_text(node_info, "workers")
 		worker.harvest(node_info, update_text)
 
 
-func resource_spawn() -> void:
+func on_exit(body: Node2D) -> void:
+	if body is Worker:
+		node_info.workers.value -= 1
+		update_text(node_info, "workers")
+
+
+func produce() -> void:
+	regen()
+
+
+func regen() -> void:
 	node_info[resource].value += node_info.production.value
 	update_text(node_info, resource)
 	if node_info[resource].value > 1:
