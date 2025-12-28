@@ -1,23 +1,25 @@
-[gd_scene load_steps=5 format=3 uid="uid://c4xm0ks6oxvdq"]
+[gd_scene load_steps=5 format=3 uid="uid://caff074tgy3am"]
 
-[ext_resource type="Script" uid="uid://ccq8dl108vsfg" path="res://scenes/land/farm/farm.gd" id="1_oklrp"]
-[ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="1_qta2l"]
-[ext_resource type="Script" uid="uid://hkuco3nsrkpr" path="res://scenes/land/components/resource.gd" id="3_2w6g4"]
+[ext_resource type="Script" uid="uid://dfvown84qwbc8" path="res://scenes/land/resource/resource_area.gd" id="1_5ufkv"]
+[ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="2_kq4tu"]
+[ext_resource type="PackedScene" uid="uid://ddh2goiv16fst" path="res://scenes/land/components/resource.tscn" id="3_5ufkv"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_ddj3k"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_vvf4q"]
 radius = 21.0
 
-[node name="Farm" type="Area2D" groups=["farm", "resource"]]
-script = ExtResource("1_oklrp")
+[node name="ResourceArea2D" type="Area2D" node_paths=PackedStringArray("res") groups=["resource", "well"]]
+script = ExtResource("1_5ufkv")
+res = NodePath("Resource")
+resource_name = "well"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_ddj3k")
+shape = SubResource("CircleShape2D_vvf4q")
 
 [node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
 position = Vector2(9.53674e-07, -9.53674e-07)
-rotation = 1.5708
+rotation = -1.5707964
 scale = Vector2(0.328125, 0.328125)
-texture = ExtResource("1_qta2l")
+texture = ExtResource("2_kq4tu")
 
 [node name="Production" type="RichTextLabel" parent="."]
 z_index = 1
@@ -55,14 +57,12 @@ drag_and_drop_selection_enabled = false
 [node name="ResourceSpawn" type="Timer" parent="."]
 autostart = true
 
-[node name="ResourceNode" type="Node2D" parent="." node_paths=PackedStringArray("production_text", "resources_text", "workers_text")]
-script = ExtResource("3_2w6g4")
+[node name="Resource" parent="." node_paths=PackedStringArray("production_text", "resources_text", "workers_text") instance=ExtResource("3_5ufkv")]
 production_text = NodePath("../Production")
 resources_text = NodePath("../Resources")
 workers_text = NodePath("../Workers")
-resource_rate = 0.25
-initial_val = 5.0
-metadata/_custom_type_script = "uid://hkuco3nsrkpr"
+resource_rate = 1.0
+initial_val = 50.0
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

@@ -9,7 +9,8 @@ class_name ResourceNode
 var text_template: = "[font_size=5][color=#000000]{label}[/color][/font_size]"
 
 var node_info: Dictionary[String, Dictionary] = { }
-@export var resource: String
+@export var resource_name: String
+@export var capacity: float
 @export var resource_rate: float
 @export var initial_val: float
 
@@ -19,7 +20,7 @@ signal has_supplies
 func init_resource() -> void:
 	node_info = {
 		"production": { "value": resource_rate, "node": production_text },
-		resource: { "value": initial_val, "node": resources_text },
+		resource_name: { "value": initial_val, "node": resources_text },
 		"workers": { "value": 0.0, "node": workers_text },
 	}
 	init_text(node_info)
@@ -41,12 +42,11 @@ func update_text(dict: Dictionary[String, Dictionary], key: String):
 	dict[key].node.text = bbcode
 
 
+# tracks how many workers are present in the area
 func on_enter(body: Node2D) -> void:
 	if body is Worker:
-		var worker: Worker = body as Worker
 		node_info.workers.value += 1
 		update_text(node_info, "workers")
-		worker.harvest(node_info, update_text)
 
 
 func on_exit(body: Node2D) -> void:
@@ -55,12 +55,23 @@ func on_exit(body: Node2D) -> void:
 		update_text(node_info, "workers")
 
 
-func produce() -> void:
-	regen()
-
-
+# respawn resource over time
 func regen() -> void:
-	node_info[resource].value += node_info.production.value
-	update_text(node_info, resource)
-	if node_info[resource].value > 1:
+	if node_info[resource_name].value >= capacity:
+		return
+	var prod_rate: float = node_info.production.value
+	node_info[resource_name].value += prod_rate
+	if node_info[resource_name].value >= capacity:
+		node_info[resource_name].value = capacity
+	update_text(node_info, resource_name)
+	if node_info[resource_name].value > 1:
 		has_supplies.emit()
+
+
+func harvest(inventory_cap: int) -> int:
+	var res := str(node_info[resource_name].value).to_float() # TODO: fix this? ignore variant to float cast error?
+	var gatherable_amount: int = min(floori(res), inventory_cap)
+	gatherable_amount = floori(gatherable_amount) # only work with fu
+	node_info[resource_name].value -= gatherable_amount # remove number from resource inventory
+	update_text(node_info, resource_name) # update ui
+	return gatherable_amount

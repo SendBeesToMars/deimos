@@ -1,21 +1,28 @@
-[gd_scene load_steps=5 format=3 uid="uid://b13lt27rt5lf1"]
+[gd_scene load_steps=4 format=3 uid="uid://b13lt27rt5lf1"]
 
 [ext_resource type="PackedScene" uid="uid://d1eftoiduyeal" path="res://scenes/units/worker/worker.tscn" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://rhd1dcaa16xd" path="res://scenes/land/base/home.tscn" id="2_h2yge"]
-[ext_resource type="PackedScene" uid="uid://c4xm0ks6oxvdq" path="res://scenes/land/farm/farm.tscn" id="3_h2yge"]
-[ext_resource type="PackedScene" uid="uid://d2eri0voaao2x" path="res://scenes/land/well/well.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://caff074tgy3am" path="res://scenes/land/resource/resourceArea.tscn" id="5_lquwl"]
 
 [node name="main" type="Node2D"]
 
 [node name="Home" parent="." instance=ExtResource("2_h2yge")]
 position = Vector2(158, 86)
 
-[node name="Farm" parent="." instance=ExtResource("3_h2yge")]
-position = Vector2(59, 134)
-
-[node name="Well" parent="." instance=ExtResource("4_1bvp3")]
-position = Vector2(207, 108)
-
 [node name="Basic Worker" parent="." instance=ExtResource("1_0xm2m")]
 z_index = 1
-position = Vector2(96, 83)
+position = Vector2(73, 81)
+velocity = Vector2(0.00032043457, 9.918213e-05)
+
+[node name="Well" parent="." instance=ExtResource("5_lquwl")]
+position = Vector2(108, 41)
+resource_name = "water"
+resource_growth_rate = 10.0
+resource_initial_val = 50.0
+resource_capacity = 100.0
+
+[node name="Farm" parent="." instance=ExtResource("5_lquwl")]
+position = Vector2(227, 80)
+resource_name = "food"
+resource_growth_rate = 20.0
+resource_capacity = 200.0

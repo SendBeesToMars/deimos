@@ -1,6 +1,7 @@
+class_name Home
 extends Area2D
 
-@export var worker_scene: PackedScene = preload("uid://d1eftoiduyeal")
+@export var worker_scene: PackedScene
 @export var max_workers: int = 5
 
 @onready var food_text: = $Food as RichTextLabel
@@ -44,14 +45,19 @@ func update_text(dict: Dictionary[String, ResourceInfo], key: String):
 	dict[key].node.text = bbcode
 
 
-# update storage and ui text
-func _on_body_entered(body: Node2D) -> void:
-	if body is Worker:
-		var worker: Worker = body as Worker
-		worker.drop_off_supplies(storage, update_text)
+func deposit(worker_inventory: Dictionary[String, int]) -> Dictionary[String, int]:
+	for key in worker_inventory.keys():
+		if storage.has(key):
+			storage[key].value += worker_inventory[key]
+			worker_inventory[key] = 0
+			var key_str: String = str(key)
+			update_text(storage, key_str)
+	return worker_inventory
 
 
 func _on_spawn_timer_timeout() -> void:
+	if not is_instance_valid(worker_scene):
+		return
 	if workers.size() <= max_workers:
 		var worker: Worker = worker_scene.instantiate() as Worker
 		workers.append(worker)
