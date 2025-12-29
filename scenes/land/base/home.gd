@@ -20,6 +20,8 @@ var storage: Dictionary[String, ResourceInfo] = {
 	"material": ResourceInfo.new(),
 }
 
+var known_locations: Dictionary[String, Array] = { "resources": [] }
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -53,6 +55,21 @@ func deposit(worker_inventory: Dictionary[String, int]) -> Dictionary[String, in
 			var key_str: String = str(key)
 			update_text(storage, key_str)
 	return worker_inventory
+
+
+func add_new_location(new_location: Area2D):
+	if not is_instance_valid(new_location):
+		return
+	if new_location.is_in_group("resource"):
+		known_locations.resources.append(new_location)
+
+
+func get_resource_locations() -> Array[Area2D]:
+	var ret: Array[Area2D] = []
+	for item in known_locations.resources:
+		if item is Area2D:
+			ret.append(item)
+	return ret
 
 
 func _on_spawn_timer_timeout() -> void:

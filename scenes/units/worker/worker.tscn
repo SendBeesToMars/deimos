@@ -8,6 +8,7 @@ radius = 2.0
 
 [node name="Basic Worker" type="CharacterBody2D" groups=["worker"]]
 script = ExtResource("1_r3l3x")
+speed = null
 
 [node name="Area2D" type="Area2D" parent="."]
 monitorable = false

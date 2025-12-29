@@ -11,7 +11,7 @@ position = Vector2(158, 86)
 
 [node name="Basic Worker" parent="." instance=ExtResource("1_0xm2m")]
 z_index = 1
-position = Vector2(73, 81)
+position = Vector2(134, 44)
 velocity = Vector2(0.00032043457, 9.918213e-05)
 
 [node name="Well" parent="." instance=ExtResource("5_lquwl")]
