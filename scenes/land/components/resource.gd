@@ -1,6 +1,5 @@
-extends Node2D
-
 class_name ResourceNode
+extends Node2D
 
 @export var production_text: RichTextLabel
 @export var resources_text: RichTextLabel
@@ -13,8 +12,7 @@ var node_info: Dictionary[String, Dictionary] = { }
 @export var capacity: float
 @export var resource_rate: float
 @export var initial_val: float
-
-signal has_supplies
+@export var can_deplete: bool = false
 
 
 func init_resource() -> void:
@@ -57,6 +55,9 @@ func on_exit(body: Node2D) -> void:
 
 # respawn resource over time
 func regen() -> void:
+	if can_deplete and node_info[resource_name].value <= 1:
+		node_info[resource_name].value = 0
+		return
 	if node_info[resource_name].value >= capacity:
 		return
 	var prod_rate: float = node_info.production.value
@@ -64,8 +65,6 @@ func regen() -> void:
 	if node_info[resource_name].value >= capacity:
 		node_info[resource_name].value = capacity
 	update_text(node_info, resource_name)
-	if node_info[resource_name].value > 1:
-		has_supplies.emit()
 
 
 func harvest(inventory_cap: int) -> int:

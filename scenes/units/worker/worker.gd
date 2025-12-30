@@ -18,14 +18,15 @@ var inventory: Dictionary[String, int] = {
 	"material": 0,
 }
 
-enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, WANDERING, SEARCHING }
-var action = Action.SEARCHING
+enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, SEARCHING }
+var action: Action = Action.SEARCHING
 
 var found_area: Area2D = null
 var resource_locations: Array[Area2D] = []
 
 
 func _process(delta: float) -> void:
+	#  if not set; find closes home
 	if not is_instance_valid(home):
 		var homes: Array[Area2D] = []
 		for node in get_tree().get_nodes_in_group("home"):
@@ -43,12 +44,13 @@ func _process(delta: float) -> void:
 		Action.DEPOSITING:
 			return
 		# could set to wander when no resources to gather/ waiting for resources to replenish
-		Action.WANDERING, Action.SEARCHING:
+		Action.SEARCHING:
 			random_walk_around_base(5000, delta)
 			if resource_locations.size() > 0:
 				action = Action.MOVING
 				ready_to_move = true
 				destination = set_destination(destination)
+
 	move_and_slide()
 
 
@@ -62,6 +64,7 @@ func walk_to_destination(delta: float):
 	velocity = velocity.move_toward(target, speed * delta)
 
 
+# after all resource nodes are depleted increase the wander distance
 func random_walk_around_base(wander_distance: float, delta: float):
 	var distance_to_home = home.global_position.distance_squared_to(global_position)
 	var random_accel = Vector2.ZERO
@@ -73,7 +76,7 @@ func random_walk_around_base(wander_distance: float, delta: float):
 		accel = (accel_to_home + random_accel) / 2
 	else:
 		accel = Vector2(randf() - 0.5, randf() - 0.5)
-	velocity += accel * speed * delta
+	velocity += accel * speed * delta * 2
 
 
 # should first look for resources. using a random walk?
@@ -141,7 +144,7 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			set_destination(area)
 			found_area = area
 			action = Action.MOVING
-			get_tree().create_timer(randi_range(2, 5))
+			await get_tree().create_timer(randi_range(2, 5)).timeout
 			set_destination(home)
 		elif area is Home:
 			var area_home: Home = area

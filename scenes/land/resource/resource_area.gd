@@ -4,17 +4,18 @@ extends Area2D
 @export var res: ResourceNode
 @export var resource_name: String = ""
 @onready var sprite: Sprite2D = $CollisionShape2D/Sprite2D
-@export var resource_growth_rate: float
-@export var resource_initial_val: float
-@export var resource_growth_timer: float
-@export var resource_capacity: float
+@export var growth_rate: float
+@export var initial_val: float
+@export var max_capacity: float
+@export var can_deplete: bool = false
 
 
 func _ready() -> void:
 	res.resource_name = resource_name
-	res.initial_val = resource_initial_val
-	res.resource_rate = resource_growth_rate
-	res.capacity = resource_capacity
+	res.initial_val = initial_val
+	res.resource_rate = growth_rate
+	res.capacity = max_capacity
+	res.can_deplete = can_deplete
 	res.init_resource()
 	sprite.rotate(randf() * 5)
 

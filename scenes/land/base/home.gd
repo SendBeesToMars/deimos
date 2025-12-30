@@ -20,7 +20,7 @@ var storage: Dictionary[String, ResourceInfo] = {
 	"material": ResourceInfo.new(),
 }
 
-var known_locations: Dictionary[String, Array] = { "resources": [] }
+var known_locations: Dictionary[String, Array] = { "resources": [], "depleted": [] }
 
 
 # Called when the node enters the scene tree for the first time.
@@ -65,8 +65,17 @@ func add_new_location(new_location: Area2D):
 
 
 func get_resource_locations() -> Array[Area2D]:
+	return format_resource_array(known_locations.resources)
+
+
+func get_depleted_locations() -> Array[Area2D]:
+	return format_resource_array(known_locations.depleted)
+
+
+# valid format for worker
+func format_resource_array(res_array: Array) -> Array[Area2D]:
 	var ret: Array[Area2D] = []
-	for item in known_locations.resources:
+	for item in res_array:
 		if item is Area2D:
 			ret.append(item)
 	return ret
@@ -80,4 +89,6 @@ func _on_spawn_timer_timeout() -> void:
 		workers.append(worker)
 		var offset := Vector2(-20, 0).rotated(randf_range(-20, 0))
 		worker.global_position = spawner.global_position + offset - global_position
+		worker.home = self as Area2D # set this home as workers home.
+		worker.resource_locations = get_resource_locations()
 		add_child(worker)
