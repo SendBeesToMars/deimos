@@ -17,7 +17,7 @@ velocity = Vector2(0.00032043457, 9.918213e-05)
 [node name="Well" parent="." instance=ExtResource("5_lquwl")]
 position = Vector2(108, 41)
 resource_name = "water"
-growth_rate = 0.1
+growth_rate = 0.25
 initial_val = 10.0
 max_capacity = 15.0
 can_deplete = true
@@ -25,3 +25,11 @@ can_deplete = true
 [node name="Farm" parent="." instance=ExtResource("5_lquwl")]
 position = Vector2(227, 80)
 resource_name = "food"
+initial_val = 200.0
+
+[node name="Forest" parent="." instance=ExtResource("5_lquwl")]
+position = Vector2(157, 146)
+resource_name = "material"
+growth_rate = 0.1
+initial_val = 200.0
+max_capacity = 200.0

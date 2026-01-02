@@ -2,14 +2,19 @@ extends CharacterBody2D
 
 class_name Worker
 
-@onready var home: Home
-@onready var resource: ResourceArea2D
-@onready var destination: Area2D
 @onready var inside_area_timer: Timer = $InsideAreaTimer
+
+enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, SEARCHING }
+var action: Action = Action.SEARCHING
+var home: Home
+var destination: Area2D
+var found_area: Area2D = null # new found area when searching.
+var resource_locations: Dictionary[String, Array] = Location.new().resources # all personally known locations. updated when home
+var ready_to_move: = false # should the enums be enough to get rid of this?
 
 @export var speed: float = 50.0
 const TOP_SPEED: float = 50
-var ready_to_move: = false
+const MAX_INT: float = Vector3i.MAX.x
 
 const INVENTORY_CAP: int = 5
 var inventory: Dictionary[String, int] = {
@@ -17,12 +22,6 @@ var inventory: Dictionary[String, int] = {
 	"water": 0,
 	"material": 0,
 }
-
-enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, SEARCHING }
-var action: Action = Action.SEARCHING
-
-var found_area: Area2D = null
-var resource_locations: Array[Area2D] = []
 
 
 func _process(delta: float) -> void:
@@ -46,10 +45,10 @@ func _process(delta: float) -> void:
 		# could set to wander when no resources to gather/ waiting for resources to replenish
 		Action.SEARCHING:
 			random_walk_around_base(5000, delta)
-			if resource_locations.size() > 0:
-				action = Action.MOVING
-				ready_to_move = true
-				destination = set_destination(destination)
+			# when resource found
+			#if resource_locations.size() > 0:
+			#action = Action.MOVING
+			#ready_to_move = true
 
 	move_and_slide()
 
@@ -59,9 +58,26 @@ func set_destination(new_dest: Area2D):
 
 
 func walk_to_destination(delta: float):
-	destination = get_destination(destination)
+	if not is_instance_valid(destination):
+		return
 	var target: Vector2 = destination.global_position - global_position
 	velocity = velocity.move_toward(target, speed * delta)
+
+
+# if destination reached, switch destination
+func get_destination() -> Area2D:
+	if not is_instance_valid(destination):
+		return home
+	if ready_to_move:
+		ready_to_move = false
+		inside_area_timer.stop()
+		if destination == home:
+			var resource: Area2D = home.get_closest_required_resource()
+			return resource
+		else:
+			return home
+	else:
+		return destination
 
 
 # after all resource nodes are depleted increase the wander distance
@@ -81,56 +97,45 @@ func random_walk_around_base(wander_distance: float, delta: float):
 
 # should first look for resources. using a random walk?
 # then walk back to base and report new location to all other workers (unless.... you dont want to ;) ).
-func find_closest(locations: Array[Area2D]) -> Area2D:
+func find_closest(locations: Array) -> Area2D:
+	if locations.size() == 0:
+		return
 	var closest: Area2D = locations[0]
-	var distance = 9999999.0
+	var distance := MAX_INT
 	for location: Area2D in locations:
-		var new_distance = location.global_position.distance_to(global_position)
+		var new_distance = location.global_position.distance_squared_to(global_position)
 		if new_distance < distance:
 			closest = location
 			distance = new_distance
 	return closest
 
 
-# if destination reached, switch destination
-func get_destination(current_destination: Area2D = null) -> Area2D:
-	if current_destination == null:
-		return home
-	if ready_to_move:
-		inside_area_timer.stop()
-		ready_to_move = false
-		if current_destination == home:
-			resource = find_closest(resource_locations)
-			return resource
-		else:
-			return home
-	else:
-		return current_destination
-
-
+# does a ton of things - maybe too much
 func deposit(deposit_node: Home):
 	ready_to_move = false
 	inventory = deposit_node.deposit(inventory)
-	if deposit_node.is_in_group("home"):
-		if is_instance_valid(found_area):
-			deposit_node.add_new_location(found_area)
-			found_area = null
-		resource_locations = deposit_node.get_resource_locations() # check if its the same?
+	if is_instance_valid(found_area):
+		deposit_node.add_new_location(found_area)
+		found_area = null
 	inside_area_timer.wait_time = randi_range(1, 5)
 	inside_area_timer.start()
 
 
 func harvest(res: ResourceArea2D):
+	printt("harvesting")
 	ready_to_move = false
 	var amount_harvested: int = res.harvest(INVENTORY_CAP)
 	inventory[res.resource_name] += amount_harvested
-	inside_area_timer.wait_time = randi_range(1, 5)
-	inside_area_timer.start()
+	destination = home
 
 
 # check distance to destination, if close enough return true.
 func destination_reached(dest: Vector2):
 	return true if position.distance_to(dest) < 1 else false
+
+
+func random_wait(start: int = 2, end: int = 5):
+	return get_tree().create_timer(randi_range(start, end)).timeout
 
 
 # go to new destination after timer runs out
@@ -140,22 +145,33 @@ func _on_inside_area_timer_timeout() -> void:
 
 func _on_area_2d_area_entered(area: Area2D) -> void:
 	if action == Action.SEARCHING:
-		if area.is_in_group("resource"):
+		if area is ResourceArea2D:
+			var found_resource = area as ResourceArea2D
+			# ignore the area if it has already been found by another worker.
+			if found_resource.is_found:
+				return
 			set_destination(area)
-			found_area = area
+			found_area = found_resource
 			action = Action.MOVING
-			await get_tree().create_timer(randi_range(2, 5)).timeout
+			await random_wait()
 			set_destination(home)
 		elif area is Home:
 			var area_home: Home = area
-			resource_locations = area_home.get_resource_locations()
+			resource_locations = area_home.get_all_resource_locations()
+			await random_wait()
+			destination = area_home.get_closest_required_resource()
 	if action == Action.MOVING:
+		# moving to home checklist:
+		# deposit inventory
+		# get new destination
 		if destination == home:
-			if area.is_in_group("home"):
+			if area is Home:
 				var home_node: = area as Home
 				deposit(home_node)
-		elif destination == resource:
-			if area.is_in_group("resource"):
+				await random_wait()
+				destination = home_node.get_closest_required_resource()
+		else:
+			if area is ResourceArea2D:
 				var res := area as ResourceArea2D
-				if res:
-					harvest(res)
+				await random_wait()
+				harvest(res)

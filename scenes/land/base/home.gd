@@ -12,6 +12,8 @@ extends Area2D
 
 @onready var workers: Array = []
 
+const MAX_INT: float = Vector3i.MAX.x
+
 var text_template: = "[font_size=5][color=#000000]{label}[/color][/font_size]"
 
 var storage: Dictionary[String, ResourceInfo] = {
@@ -20,12 +22,48 @@ var storage: Dictionary[String, ResourceInfo] = {
 	"material": ResourceInfo.new(),
 }
 
-var known_locations: Dictionary[String, Array] = { "resources": [], "depleted": [] }
+var known_locations: Location = Location.new()
+
+enum Job { SEARCH, GATHER, BUILD }
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	init_text(storage)
+
+
+func get_required_resource_name() -> String:
+	var lowest_resource: = MAX_INT
+	var resource_name: String
+	for key in storage:
+		if storage[key].value < lowest_resource:
+			lowest_resource = storage[key].value
+			resource_name = key
+	return resource_name
+
+
+# this should be in the worker class? should home tell workers what to do? or should they choose for themselves? ;)))))
+func get_required_resource() -> Array:
+	var low_resource: = get_required_resource_name()
+	var known_resources: = get_all_resource_locations()
+	return known_resources.get(low_resource, [])
+
+
+func get_closest_required_resource() -> Area2D:
+	var resources: Array = get_required_resource()
+	return _find_closest(resources)
+
+
+func _find_closest(locations: Array) -> Area2D:
+	if locations.size() == 0:
+		return
+	var closest: Area2D = locations[0]
+	var distance := MAX_INT
+	for location: Area2D in locations:
+		var new_distance = location.global_position.distance_squared_to(global_position)
+		if new_distance < distance:
+			closest = location
+			distance = new_distance
+	return closest
 
 
 func init_text(items: Dictionary[String, ResourceInfo]):
@@ -57,19 +95,28 @@ func deposit(worker_inventory: Dictionary[String, int]) -> Dictionary[String, in
 	return worker_inventory
 
 
-func add_new_location(new_location: Area2D):
-	if not is_instance_valid(new_location):
+func add_new_location(location: Area2D):
+	if not is_instance_valid(location):
 		return
-	if new_location.is_in_group("resource"):
-		known_locations.resources.append(new_location)
+	if location is not ResourceArea2D:
+		return
+	var new_location: = location as ResourceArea2D
+	new_location.found()
+	var resource_name = new_location.get_resource_name()
+	if new_location not in known_locations.resources[resource_name]:
+		known_locations.resources[resource_name].append(new_location)
 
 
-func get_resource_locations() -> Array[Area2D]:
-	return format_resource_array(known_locations.resources)
+func get_all_resource_locations() -> Dictionary:
+	return known_locations.resources
 
 
-func get_depleted_locations() -> Array[Area2D]:
-	return format_resource_array(known_locations.depleted)
+func get_resource_locations(resource_type: String) -> Array[Area2D]:
+	return format_resource_array(known_locations.resources[resource_type])
+
+
+func get_depleted_locations(resource_type: String) -> Array[Area2D]:
+	return format_resource_array(known_locations.depleted[resource_type])
 
 
 # valid format for worker
@@ -90,5 +137,5 @@ func _on_spawn_timer_timeout() -> void:
 		var offset := Vector2(-20, 0).rotated(randf_range(-20, 0))
 		worker.global_position = spawner.global_position + offset - global_position
 		worker.home = self as Area2D # set this home as workers home.
-		worker.resource_locations = get_resource_locations()
+		worker.destination = get_closest_required_resource()
 		add_child(worker)

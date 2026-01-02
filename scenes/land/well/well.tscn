@@ -61,7 +61,6 @@ script = ExtResource("3_yyvik")
 production_text = NodePath("../Production")
 resources_text = NodePath("../Resources")
 workers_text = NodePath("../Workers")
-resource = "water"
 resource_rate = 1.0
 initial_val = 50.0
 metadata/_custom_type_script = "uid://hkuco3nsrkpr"
