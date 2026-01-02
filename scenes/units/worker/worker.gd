@@ -2,10 +2,8 @@ extends CharacterBody2D
 
 class_name Worker
 
-@onready var inside_area_timer: Timer = $InsideAreaTimer
-
-enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, SEARCHING }
-var action: Action = Action.SEARCHING
+enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, SCOUTING, PROSPECTING }
+var action: Action = Action.PROSPECTING
 var home: Home
 var destination: Area2D
 var found_area: Area2D = null # new found area when searching.
@@ -22,6 +20,7 @@ var inventory: Dictionary[String, int] = {
 	"water": 0,
 	"material": 0,
 }
+var amount_harvested: int = 0
 
 
 func _process(delta: float) -> void:
@@ -43,12 +42,8 @@ func _process(delta: float) -> void:
 		Action.DEPOSITING:
 			return
 		# could set to wander when no resources to gather/ waiting for resources to replenish
-		Action.SEARCHING:
+		Action.PROSPECTING:
 			random_walk_around_base(5000, delta)
-			# when resource found
-			#if resource_locations.size() > 0:
-			#action = Action.MOVING
-			#ready_to_move = true
 
 	move_and_slide()
 
@@ -70,7 +65,6 @@ func get_destination() -> Area2D:
 		return home
 	if ready_to_move:
 		ready_to_move = false
-		inside_area_timer.stop()
 		if destination == home:
 			var resource: Area2D = home.get_closest_required_resource()
 			return resource
@@ -113,19 +107,23 @@ func find_closest(locations: Array) -> Area2D:
 # does a ton of things - maybe too much
 func deposit(deposit_node: Home):
 	ready_to_move = false
-	inventory = deposit_node.deposit(inventory)
 	if is_instance_valid(found_area):
 		deposit_node.add_new_location(found_area)
 		found_area = null
-	inside_area_timer.wait_time = randi_range(1, 5)
-	inside_area_timer.start()
+	if amount_harvested != 0:
+		inventory = deposit_node.deposit(inventory)
+		amount_harvested = 0
+		action = Action.PROSPECTING
+	await random_wait()
+	ready_to_move = true
 
 
+# if worker harvests nothing go back to wandering around.
 func harvest(res: ResourceArea2D):
-	printt("harvesting")
 	ready_to_move = false
-	var amount_harvested: int = res.harvest(INVENTORY_CAP)
+	amount_harvested = res.harvest(INVENTORY_CAP)
 	inventory[res.resource_name] += amount_harvested
+	printt("amount_harvested: ", amount_harvested)
 	destination = home
 
 
@@ -134,17 +132,27 @@ func destination_reached(dest: Vector2):
 	return true if position.distance_to(dest) < 1 else false
 
 
+# scout the area around starting_location for a free plot to build on.
+func can_place_circle(location: Vector2, radius: int) -> bool:
+	var shape := CircleShape2D.new()
+	shape.radius = radius
+
+	var params := PhysicsShapeQueryParameters2D.new()
+	params.shape = shape
+	params.transform = Transform2D(0.0, location)
+	params.collide_with_areas = true
+	params.collide_with_bodies = false
+
+	var space := get_world_2d().direct_space_state
+	return space.intersect_shape(params).is_empty()
+
+
 func random_wait(start: int = 2, end: int = 5):
 	return get_tree().create_timer(randi_range(start, end)).timeout
 
 
-# go to new destination after timer runs out
-func _on_inside_area_timer_timeout() -> void:
-	ready_to_move = true
-
-
 func _on_area_2d_area_entered(area: Area2D) -> void:
-	if action == Action.SEARCHING:
+	if action == Action.PROSPECTING:
 		if area is ResourceArea2D:
 			var found_resource = area as ResourceArea2D
 			# ignore the area if it has already been found by another worker.
@@ -168,8 +176,10 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			if area is Home:
 				var home_node: = area as Home
 				deposit(home_node)
+				printt("can_place_circle", { "can place": can_place_circle(home.global_position, 5) })
 				await random_wait()
 				destination = home_node.get_closest_required_resource()
+				printt("moved to home, get dest", { "dest": destination })
 		else:
 			if area is ResourceArea2D:
 				var res := area as ResourceArea2D

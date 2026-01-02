@@ -1,6 +1,8 @@
 class_name Home
 extends Area2D
 
+@export var house_scene: PackedScene
+
 @export var worker_scene: PackedScene
 @export var max_workers: int = 5
 
@@ -31,25 +33,22 @@ func _ready() -> void:
 	init_text(storage)
 
 
-func get_required_resource_name() -> String:
+func get_lowest_resource_array() -> Array:
 	var lowest_resource: = MAX_INT
 	var resource_name: String
-	for key in storage:
+	var known_resource: Dictionary = known_locations.resources
+	for key in known_resource:
+		var resource: Array = known_resource[key]
+		if resource.is_empty():
+			continue
 		if storage[key].value < lowest_resource:
 			lowest_resource = storage[key].value
 			resource_name = key
-	return resource_name
-
-
-# this should be in the worker class? should home tell workers what to do? or should they choose for themselves? ;)))))
-func get_required_resource() -> Array:
-	var low_resource: = get_required_resource_name()
-	var known_resources: = get_all_resource_locations()
-	return known_resources.get(low_resource, [])
+	return known_resource.get(resource_name, [])
 
 
 func get_closest_required_resource() -> Area2D:
-	var resources: Array = get_required_resource()
+	var resources: Array = get_lowest_resource_array()
 	return _find_closest(resources)
 
 
@@ -128,7 +127,17 @@ func format_resource_array(res_array: Array) -> Array[Area2D]:
 	return ret
 
 
-func _on_spawn_timer_timeout() -> void:
+# move this to worker add position args
+func build_house():
+	if not is_instance_valid(house_scene):
+		return
+	var new_house: Area2D = house_scene.instantiate()
+	var offset := Vector2(-40, 0).rotated(randf_range(-40, 0))
+	new_house.global_position = spawner.global_position + offset - global_position
+	add_child(new_house)
+
+
+func spawn_worker():
 	if not is_instance_valid(worker_scene):
 		return
 	if workers.size() <= max_workers:
@@ -139,3 +148,8 @@ func _on_spawn_timer_timeout() -> void:
 		worker.home = self as Area2D # set this home as workers home.
 		worker.destination = get_closest_required_resource()
 		add_child(worker)
+
+
+func _on_spawn_timer_timeout() -> void:
+	spawn_worker()
+	#build_house()

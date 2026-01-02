@@ -1,13 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://b13lt27rt5lf1"]
+[gd_scene load_steps=5 format=3 uid="uid://b13lt27rt5lf1"]
 
 [ext_resource type="PackedScene" uid="uid://d1eftoiduyeal" path="res://scenes/units/worker/worker.tscn" id="1_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://rhd1dcaa16xd" path="res://scenes/land/base/home.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://dnwnw6scp355m" path="res://scenes/land/buildings/house/house.tscn" id="2_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://rhd1dcaa16xd" path="res://scenes/land/buildings/base/home.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://caff074tgy3am" path="res://scenes/land/resource/resourceArea.tscn" id="5_lquwl"]
 
 [node name="main" type="Node2D"]
 
 [node name="Home" parent="." instance=ExtResource("2_h2yge")]
 position = Vector2(158, 86)
+house_scene = ExtResource("2_1bvp3")
 
 [node name="Basic Worker" parent="." instance=ExtResource("1_0xm2m")]
 z_index = 1
