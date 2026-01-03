@@ -1,4 +1,11 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
-/*.tmp
+# Godot temp files
+*.tmp
+
+# Godot import files (optional)
+*.import
+
+# Godot addons (if generated)
+addons/
