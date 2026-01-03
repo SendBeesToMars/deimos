@@ -94,7 +94,7 @@ func deposit(worker_inventory: Dictionary[String, int]) -> Dictionary[String, in
 	return worker_inventory
 
 
-func add_new_location(location: Area2D):
+func add_found_location(location: Area2D):
 	if not is_instance_valid(location):
 		return
 	if location is not ResourceArea2D:
@@ -146,10 +146,11 @@ func spawn_worker():
 		var offset := Vector2(-20, 0).rotated(randf_range(-20, 0))
 		worker.global_position = spawner.global_position + offset - global_position
 		worker.home = self as Area2D # set this home as workers home.
-		worker.destination = get_closest_required_resource()
+		worker.destination = get_closest_required_resource().global_position
 		add_child(worker)
 
 
 func _on_spawn_timer_timeout() -> void:
-	spawn_worker()
+	pass
+	#spawn_worker()
 	#build_house()

@@ -3,9 +3,9 @@ extends CharacterBody2D
 class_name Worker
 
 enum Action { MOVING, IDLE, HARVESTING, DEPOSITING, SCOUTING, PROSPECTING }
-var action: Action = Action.PROSPECTING
+var action: Action = Action.SCOUTING
 var home: Home
-var destination: Area2D
+var destination: Vector2
 var found_area: Area2D = null # new found area when searching.
 var resource_locations: Dictionary[String, Array] = Location.new().resources # all personally known locations. updated when home
 var ready_to_move: = false # should the enums be enough to get rid of this?
@@ -32,6 +32,9 @@ func _process(delta: float) -> void:
 				homes.append(node)
 		home = find_closest(homes)
 
+	if destination.is_zero_approx():
+		destination = home.global_position
+
 	match action:
 		Action.IDLE:
 			return
@@ -44,32 +47,36 @@ func _process(delta: float) -> void:
 		# could set to wander when no resources to gather/ waiting for resources to replenish
 		Action.PROSPECTING:
 			random_walk_around_base(5000, delta)
-
+		Action.SCOUTING:
+			if destination_reached():
+				destination = get_scout_location(40, home.global_position) # this should be set to homes radius
+			draw_crumb(position, 1)
+			walk_to_destination(delta)
 	move_and_slide()
 
 
-func set_destination(new_dest: Area2D):
+func set_destination(new_dest: Vector2):
 	destination = new_dest
 
 
 func walk_to_destination(delta: float):
-	if not is_instance_valid(destination):
+	if destination.is_equal_approx(position):
 		return
-	var target: Vector2 = destination.global_position - global_position
+	var target: Vector2 = destination - global_position
 	velocity = velocity.move_toward(target, speed * delta)
 
 
 # if destination reached, switch destination
-func get_destination() -> Area2D:
+func get_destination() -> Vector2:
 	if not is_instance_valid(destination):
-		return home
+		return home.global_position
 	if ready_to_move:
 		ready_to_move = false
-		if destination == home:
+		if destination.is_equal_approx(home.global_position):
 			var resource: Area2D = home.get_closest_required_resource()
-			return resource
+			return resource.global_position
 		else:
-			return home
+			return home.global_position
 	else:
 		return destination
 
@@ -108,12 +115,12 @@ func find_closest(locations: Array) -> Area2D:
 func deposit(deposit_node: Home):
 	ready_to_move = false
 	if is_instance_valid(found_area):
-		deposit_node.add_new_location(found_area)
+		deposit_node.add_found_location(found_area)
 		found_area = null
 	if amount_harvested != 0:
 		inventory = deposit_node.deposit(inventory)
 		amount_harvested = 0
-		action = Action.PROSPECTING
+		action = Action.SCOUTING
 	await random_wait()
 	ready_to_move = true
 
@@ -124,12 +131,24 @@ func harvest(res: ResourceArea2D):
 	amount_harvested = res.harvest(INVENTORY_CAP)
 	inventory[res.resource_name] += amount_harvested
 	printt("amount_harvested: ", amount_harvested)
-	destination = home
+	destination = home.global_position
 
 
 # check distance to destination, if close enough return true.
-func destination_reached(dest: Vector2):
-	return true if position.distance_to(dest) < 1 else false
+func destination_reached(dest: Vector2 = destination):
+	return position.distance_squared_to(dest) < 5
+
+
+func scout_area():
+	var offset := Vector2(40, 0).rotated(randf() * TAU)
+	var pos: Vector2 = position + offset
+	return can_place_circle(pos, 10)
+
+
+func get_scout_location(radius: float = 40, search_from: Vector2 = position):
+	var offset := Vector2(radius, 0).rotated(randf() * TAU)
+	var pos: Vector2 = search_from + offset
+	return pos
 
 
 # scout the area around starting_location for a free plot to build on.
@@ -147,6 +166,18 @@ func can_place_circle(location: Vector2, radius: int) -> bool:
 	return space.intersect_shape(params).is_empty()
 
 
+func draw_crumb(location: Vector2, radius: float):
+	var sprite := Sprite2D.new()
+	sprite.texture = preload("uid://krjhtiqa6l")
+
+	var tex_radius := sprite.texture.get_size().x * 0.5
+	var scale_factor := radius / tex_radius
+	sprite.scale = Vector2.ONE * scale_factor
+	sprite.z_index = 5
+	sprite.position = location
+	get_parent().add_child(sprite)
+
+
 func random_wait(start: int = 2, end: int = 5):
 	return get_tree().create_timer(randi_range(start, end)).timeout
 
@@ -158,27 +189,27 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			# ignore the area if it has already been found by another worker.
 			if found_resource.is_found:
 				return
-			set_destination(area)
+			set_destination(area.global_position)
 			found_area = found_resource
 			action = Action.MOVING
 			await random_wait()
-			set_destination(home)
+			set_destination(home.global_position)
 		elif area is Home:
 			var area_home: Home = area
 			resource_locations = area_home.get_all_resource_locations()
 			await random_wait()
-			destination = area_home.get_closest_required_resource()
+			destination = area_home.get_closest_required_resource().global_position
 	if action == Action.MOVING:
 		# moving to home checklist:
 		# deposit inventory
 		# get new destination
-		if destination == home:
+		if destination.is_equal_approx(home.global_position):
 			if area is Home:
 				var home_node: = area as Home
 				deposit(home_node)
 				printt("can_place_circle", { "can place": can_place_circle(home.global_position, 5) })
 				await random_wait()
-				destination = home_node.get_closest_required_resource()
+				destination = home_node.get_closest_required_resource().global_position
 				printt("moved to home, get dest", { "dest": destination })
 		else:
 			if area is ResourceArea2D:

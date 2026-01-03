@@ -11,6 +11,7 @@ z_index = 1
 script = ExtResource("1_r3l3x")
 
 [node name="Area2D" type="Area2D" parent="."]
+collision_layer = 0
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
