@@ -1,4 +1,4 @@
-class_name Home
+class_name Base
 extends Area2D
 
 @export var house_scene: PackedScene
@@ -99,7 +99,7 @@ func add_found_location(location: Area2D):
 		return
 	if location is not ResourceArea2D:
 		return
-	var new_location: = location as ResourceArea2D
+	var new_location: ResourceArea2D = location
 	new_location.found()
 	var resource_name = new_location.get_resource_name()
 	if new_location not in known_locations.resources[resource_name]:
@@ -137,20 +137,37 @@ func build_house():
 	add_child(new_house)
 
 
+func get_building_request_location():
+	return _find_closest(known_locations.building_sites)
+
+
+func add_building_site(new_site: Area2D):
+	known_locations.building_sites.append(new_site)
+
+
+# idk return a random job for now
+func get_new_worker_action(_current_action) -> Worker.Action:
+	#var actions = Worker.Action.values()
+	#return actions.pick_random()
+	return Worker.Action.HARVESTING
+
+
 func spawn_worker():
 	if not is_instance_valid(worker_scene):
 		return
 	if workers.size() <= max_workers:
-		var worker: Worker = worker_scene.instantiate() as Worker
+		var worker: Worker = worker_scene.instantiate()
 		workers.append(worker)
 		var offset := Vector2(-20, 0).rotated(randf_range(-20, 0))
 		worker.global_position = spawner.global_position + offset - global_position
-		worker.home = self as Area2D # set this home as workers home.
-		worker.destination = get_closest_required_resource().global_position
+		worker.home_base_location = global_position # set this base as workers home-base.
+		var required_res := get_closest_required_resource()
+		worker.action = Worker.Action.PROSPECTING
+		if is_instance_valid(required_res):
+			worker.destination = required_res.global_position
 		add_child(worker)
 
 
 func _on_spawn_timer_timeout() -> void:
-	pass
-	#spawn_worker()
+	spawn_worker()
 	#build_house()

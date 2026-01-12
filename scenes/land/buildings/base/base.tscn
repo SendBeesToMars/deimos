@@ -1,13 +1,13 @@
 [gd_scene load_steps=5 format=3 uid="uid://rhd1dcaa16xd"]
 
-[ext_resource type="Script" uid="uid://gdv4k6kk06c7" path="res://scenes/land/buildings/base/home.gd" id="1_0tcja"]
+[ext_resource type="Script" uid="uid://gdv4k6kk06c7" path="res://scenes/land/buildings/base/base.gd" id="1_0tcja"]
 [ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="1_pvqg0"]
 [ext_resource type="PackedScene" uid="uid://d1eftoiduyeal" path="res://scenes/units/worker/worker.tscn" id="2_55p7o"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ddj3k"]
 radius = 21.0
 
-[node name="Home" type="Area2D" groups=["home"]]
+[node name="Base" type="Area2D" groups=["base"]]
 z_index = 1
 script = ExtResource("1_0tcja")
 worker_scene = ExtResource("2_55p7o")

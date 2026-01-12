@@ -1,14 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://d1eftoiduyeal"]
+[gd_scene load_steps=3 format=3 uid="uid://bj3jorkar2efj"]
 
-[ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="1_mj6w4"]
-[ext_resource type="Script" uid="uid://do3qomo2c28d7" path="res://scenes/units/worker/worker.gd" id="1_r3l3x"]
+[ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="2_hrwqq"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ddj3k"]
 radius = 2.0
 
-[node name="Basic Worker" type="CharacterBody2D" groups=["worker"]]
+[node name="Tradesman" type="CharacterBody2D" groups=["worker"]]
 z_index = 1
-script = ExtResource("1_r3l3x")
 
 [node name="Area2D" type="Area2D" parent="."]
 collision_layer = 0
@@ -21,9 +19,10 @@ shape = SubResource("CircleShape2D_ddj3k")
 shape = SubResource("CircleShape2D_ddj3k")
 
 [node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
+modulate = Color(0.62075, 0.03051066, 0.2688904, 1)
 position = Vector2(2.0861626e-07, 2.0861626e-07)
 scale = Vector2(0.0625, 0.0625)
-texture = ExtResource("1_mj6w4")
+texture = ExtResource("2_hrwqq")
 
 [node name="Text" type="RichTextLabel" parent="."]
 offset_left = -4.0

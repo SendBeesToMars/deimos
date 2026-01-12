@@ -1,12 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://dnwnw6scp355m"]
+[gd_scene load_steps=4 format=3 uid="uid://dnwnw6scp355m"]
 
 [ext_resource type="Texture2D" uid="uid://krjhtiqa6l" path="res://icon.svg" id="1_5sfsa"]
+[ext_resource type="Script" uid="uid://m3p3m70avb4r" path="res://scenes/land/buildings/house/house.gd" id="1_dnogs"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_5sfsa"]
 radius = 8.0
 
 [node name="House" type="Area2D"]
 monitorable = false
+script = ExtResource("1_dnogs")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_5sfsa")
